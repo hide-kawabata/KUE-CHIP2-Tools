@@ -266,6 +266,7 @@ fun printList(mem: List<Int>, parsedList: IMList) {
   val fmt_1Bc = " %02X :\t%02X\t\t%s\t%s\t%s,\t%s\n"
   val fmt_2B = " %02X :\t%02X %02X\t\t%s\t%s\t%s\n"
   val fmt_2Bc = " %02X :\t%02X %02X\t\t%s\t%s\t%s,\t%s\n"
+  val fmt_2Bc2 = " %02X :\t%02X %02X\t\t%s\t%s\t%s,\t[%s]\n"
   val fmt_pseudo = "\t\t\t%s\t%s\t%s\t%s\n"
   parsedList.forEach {
     val tri = it.first
@@ -288,11 +289,11 @@ fun printList(mem: List<Int>, parsedList: IMList) {
       instT.OP_RImm -> 
         print(fmt_2Bc.format(addr, mem[addr++], mem[addr++], lbl, s1, s2, s3))
       instT.OP_RDir -> 
-        print(fmt_2Bc.format(addr, mem[addr++], mem[addr++], lbl, s1, s2, s3))
+        print(fmt_2Bc2.format(addr, mem[addr++], mem[addr++], lbl, s1, s2, s3))
       instT.OP_RDis0 -> 
-        print(fmt_2Bc.format(addr, mem[addr++], mem[addr++], lbl, s1, s2, s3))
+        print(fmt_2Bc2.format(addr, mem[addr++], mem[addr++], lbl, s1, s2, s3))
       instT.OP_RDis -> 
-        print(fmt_2Bc.format(addr, mem[addr++], mem[addr++], lbl, s1, s2, s3))
+        print(fmt_2Bc2.format(addr, mem[addr++], mem[addr++], lbl, s1, s2, s3))
       instT.BR -> 
         print(fmt_2B.format(addr, mem[addr++], mem[addr++], lbl, s1, s2))
     }
