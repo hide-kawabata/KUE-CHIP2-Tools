@@ -30,11 +30,12 @@ fun parseInputList(lineList: List<String>): Pair<IMList, LabelList> {
   val spc = "[ \t]*"
   val op_pat = "([a-z][a-z][a-z]?)"
   val ident = "([a-z][a-z0-9]*)"
+  val num = "([0-9][0-9a-f]*h?)"
   val mode_reg = "(acc|ix)"
-  val mode_imm = "((\\+|\\-)?(0h?|[1-9][0-9]*h?)|[a-z][a-z0-9]*)"
-  val mode_dir = "\\[ *(0h?|[1-9][0-9]*h?|[a-z][a-z0-9]*) *\\]"
+  val mode_imm = "((\\+|\\-)?(" + num + "|" + ident + "))"
+  val mode_dir = "\\[ *(" + num + "|" + ident + ") *\\]"
   val mode_dis0 = "\\[ *ix *\\]"
-  val mode_dis = "\\[ *ix *(\\+|\\-) *(0h?|[1-9][0-9]*h?|[a-z][a-z0-9]*) *\\]"
+  val mode_dis = "\\[ *ix *(\\+|\\-) *(" + num + "|" + ident + ") *\\]"
   val sep = spc + ",?" + spc
   val inst_op = spc + op_pat + spc
   val inst_r = spc + op_pat + spc + mode_reg + spc
@@ -44,7 +45,7 @@ fun parseInputList(lineList: List<String>): Pair<IMList, LabelList> {
   val inst_rdis0 = spc + op_pat + spc + mode_reg + sep + mode_dis0 + spc
   val inst_rdis = spc + op_pat + spc + mode_reg + sep + mode_dis + spc
   val inst_b = spc + op_pat + spc + ident + spc
-  val lab_prefix = spc + "(([a-z][a-z0-9]*)?[ \t]*:)?"
+  val lab_prefix = spc + "(" + ident + "?[ \t]*:)?"
   val regex_op = (lab_prefix + inst_op).toRegex() // L: SCF
   val regex_r = (lab_prefix + inst_r).toRegex() // L: SRA ACC
   val regex_rr = (lab_prefix + inst_rr).toRegex() // L: ADD ACC, IX
@@ -53,8 +54,8 @@ fun parseInputList(lineList: List<String>): Pair<IMList, LabelList> {
   val regex_rdis0 = (lab_prefix + inst_rdis0).toRegex() // L: ADD ACC, [IX]
   val regex_rdis = (lab_prefix + inst_rdis).toRegex() // L: ADD ACC, [IX+3]
   val regex_b = (lab_prefix + inst_b).toRegex() // L: BNE L2
-  val regex_equ = (spc + "([a-z][a-z0-9]*)" + spc + ":" + spc 
-      + "(equ)" + spc + "([0-9][0-9]*h?)" + spc).toRegex() // L: EQU 80H
+  val regex_equ = (spc + ident + spc + ":" + spc 
+      + "(equ)" + spc + num + spc).toRegex() // L: EQU 80H
 
   var labels = mutableListOf<Pair<String,Int>>()
   var parsedList = mutableListOf<IMElem>()
