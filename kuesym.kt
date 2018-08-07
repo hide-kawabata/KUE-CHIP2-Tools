@@ -574,14 +574,14 @@ class KueChip2Board() {
   fun bzn(opr1: String) {  
     if ((negf == 1) || (zerof == 1)) pc.num2byte(parseNumber0(opr1)) else pc.inc()
   }
-/*
   fun bni(opr1: String) {  
-    if (zerof == 1) pc.num2byte(parseNumber0(opr1)) else pc.inc()
+    println("bni: not implemented yet")
+    if (false) pc.num2byte(parseNumber0(opr1)) else pc.inc()
   }
   fun bno(opr1: String) {  
-    if (zerof == 1) pc.num2byte(parseNumber0(opr1)) else pc.inc()
+    println("bno: not implemented yet")
+    if (false) pc.num2byte(parseNumber0(opr1)) else pc.inc()
   }
-*/
   fun bnc(opr1: String) {  
     if (cf == 0) pc.num2byte(parseNumber0(opr1)) else pc.inc()
   }
@@ -951,8 +951,8 @@ fun dispatch(cpu: KueChip2Board, op: String, inst_type: instT,
       "bn" -> cpu.bn(opr1)
       "bp" -> cpu.bp(opr1)
       "bzn" -> cpu.bzn(opr1)
-//      "bni" -> cpu.bni(opr1)
-//      "bno" -> cpu.bno(opr1)
+      "bni" -> cpu.bni(opr1)
+      "bno" -> cpu.bno(opr1)
       "bnc" -> cpu.bnc(opr1)
       "bc" -> cpu.bc(opr1)
       "bge" -> cpu.bge(opr1)
