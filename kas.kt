@@ -37,14 +37,15 @@ fun parseInputList(lineList: List<String>): Pair<IMList, LabelList> {
   val mode_dis0 = "\\[ *ix *\\]"
   val mode_dis = "\\[ *ix *(\\+|\\-) *(" + num + "|" + ident + ") *\\]"
   val sep = spc + ",?" + spc
-  val inst_op = spc + op_pat + spc
-  val inst_r = spc + op_pat + spc + mode_reg + spc
-  val inst_rr = spc + op_pat + spc + mode_reg + sep + mode_reg + spc
-  val inst_rimm = spc + op_pat + spc + mode_reg + sep + mode_imm + spc
-  val inst_rdir = spc + op_pat + spc + mode_reg + sep + mode_dir + spc
-  val inst_rdis0 = spc + op_pat + spc + mode_reg + sep + mode_dis0 + spc
-  val inst_rdis = spc + op_pat + spc + mode_reg + sep + mode_dis + spc
-  val inst_b = spc + op_pat + spc + ident + spc
+  val comment = "(;.*)?"
+  val inst_op = spc + op_pat + spc + comment
+  val inst_r = spc + op_pat + spc + mode_reg + spc + comment
+  val inst_rr = spc + op_pat + spc + mode_reg + sep + mode_reg + spc + comment
+  val inst_rimm = spc + op_pat + spc + mode_reg + sep + mode_imm + spc + comment
+  val inst_rdir = spc + op_pat + spc + mode_reg + sep + mode_dir + spc + comment
+  val inst_rdis0 = spc + op_pat + spc + mode_reg + sep + mode_dis0 + spc + comment
+  val inst_rdis = spc + op_pat + spc + mode_reg + sep + mode_dis + spc + comment
+  val inst_b = spc + op_pat + spc + ident + spc + comment
   val lab_prefix = spc + "(" + ident + "?[ \t]*:)?"
   val regex_op = (lab_prefix + inst_op).toRegex() // L: SCF
   val regex_r = (lab_prefix + inst_r).toRegex() // L: SRA ACC
@@ -114,9 +115,12 @@ fun parseInputList(lineList: List<String>): Pair<IMList, LabelList> {
       byte_count += 2
 
     } else if (regex_rdis.matches(line)) { // L: ADD ACC, [IX+3]
-      val (lblc, lbl, p1, p2, p3) = regex_rdis.find(line)!!.destructured
+      val (lblc, lbl, p1, p2, p3, p4) = regex_rdis.find(line)!!.destructured
+//println("p1=" + p1 + " p2=" + p2 + " p3=" + p3 + " p4=" + p4)
       labels.add(Pair(lbl, byte_count))
-      parsedList.add(Triple(Triple(p1, p2, p3), instT.OP_RDis, lblc))
+//      parsedList.add(Triple(Triple(p1, p2, p3), instT.OP_RDis, lblc))
+//    parsedList.add(Triple(Triple(p1, p2, p4), instT.OP_RDis, lblc))
+    parsedList.add(Triple(Triple(p1, p2, if (p3=="+") p4 else {p3+p4}), instT.OP_RDis, lblc))
       byte_count += 2
 
     } else if (regex_b.matches(line)) { // L: BNE L2
@@ -152,7 +156,14 @@ fun arrangeByteSeq(arg: Pair<IMList, LabelList>): List<Int> {
 
   fun parseNumber(s: String): Int { // {ID, 0AH, 3} -> Int
     val ca = s.toCharArray()
-    if (!s[0].isDigit()) {
+    if (s[0] == '-') {
+      if (s[ca.size-1] == 'h') {
+	var s2 = s.trim({ch -> ch == 'h'})
+	return (s2.toLong(radix = 16).toInt()) // 0AH
+      } else {
+	return s.toInt() // 3
+      }
+    } else if (!s[0].isDigit()) {
       return getAddr(s) // ID
     } else if (s[ca.size-1] == 'h') {
       var s2 = s.trim({ch -> ch == 'h'})
@@ -267,6 +278,7 @@ fun printList(mem: List<Int>, parsedList: IMList) {
   val fmt_2B = " %02X :\t%02X %02X\t\t%s\t%s\t%s\n"
   val fmt_2Bc = " %02X :\t%02X %02X\t\t%s\t%s\t%s,\t%s\n"
   val fmt_2Bc2 = " %02X :\t%02X %02X\t\t%s\t%s\t%s,\t[%s]\n"
+  val fmt_2Bc3 = " %02X :\t%02X %02X\t\t%s\t%s\t%s,\t[IX+%s]\n"
   val fmt_pseudo = "\t\t\t%s\t%s\t%s\t%s\n"
   parsedList.forEach {
     val tri = it.first
@@ -291,9 +303,9 @@ fun printList(mem: List<Int>, parsedList: IMList) {
       instT.OP_RDir -> 
         print(fmt_2Bc2.format(addr, mem[addr++], mem[addr++], lbl, s1, s2, s3))
       instT.OP_RDis0 -> 
-        print(fmt_2Bc2.format(addr, mem[addr++], mem[addr++], lbl, s1, s2, s3))
+        print(fmt_2Bc3.format(addr, mem[addr++], mem[addr++], lbl, s1, s2, s3))
       instT.OP_RDis -> 
-        print(fmt_2Bc2.format(addr, mem[addr++], mem[addr++], lbl, s1, s2, s3))
+        print(fmt_2Bc3.format(addr, mem[addr++], mem[addr++], lbl, s1, s2, s3))
       instT.BR -> 
         print(fmt_2B.format(addr, mem[addr++], mem[addr++], lbl, s1, s2))
     }
