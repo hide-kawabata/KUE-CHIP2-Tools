@@ -367,10 +367,18 @@ fun printList(mem: List<Int>, arg: Pair<IMList, LabelList>) {
 }
 
 
-fun assemble(lineList: MutableList<String>) {
+fun printHex(mem: List<Int>) {
+  mem.forEach {print("%02X\n".format(it))}
+}
+
+
+fun assemble(lineList: MutableList<String>, otype: String) {
   val pair = parseInputList(lineList)
   val mem = arrangeByteSeq(pair)
-  printList(mem, pair)
+  when (otype) {
+    "hex" -> printHex(mem)
+    else -> printList(mem, pair)
+  }
 }
 
 
@@ -379,16 +387,17 @@ fun main(args: Array<String>) {
     println("Usage: kas filename")
     return
   }
-
   try {
     val inputStream: InputStream = File(args[0]).inputStream()
-//  val inputString = inputStream.bufferedReader().use { it.readText() }
-
     val lineList = mutableListOf<String>()
     inputStream.bufferedReader().useLines { 
       lines -> lines.forEach {lineList.add(it)} 
     }
-    assemble(lineList)
+    if (args.size >= 2 && args[1] == "hex") {
+      assemble(lineList, "hex")
+    } else {
+      assemble(lineList, "")
+    }
   } catch (e: java.io.FileNotFoundException) {
     println(args[0] + ": no such file")
   } catch (e: AsmError) {
