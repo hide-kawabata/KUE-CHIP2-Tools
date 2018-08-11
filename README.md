@@ -112,3 +112,6 @@ PC=0C(12), MAR=00(0), IR=0F(15), DR=90(-112/144)
 Bye.
 $ 
    ```
+
+## How to build
+Type `make`. You need a Kotlin compiler to build the tools. Once you build the tools, you can run them on any system with Java Runtime Environment.
