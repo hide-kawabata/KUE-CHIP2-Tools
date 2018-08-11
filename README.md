@@ -41,7 +41,7 @@ $
 
    ```
 $ ./kas mul.asm hex > mul.hex
-$ ./kuesym
+$ ./ksim
 Starting KueChip2 Simulator ... OK.
 > mem
  00 :  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00

@@ -1,9 +1,9 @@
-OBJS = kuesym.jar kas.jar
+OBJS = ksim.jar kas.jar
 
-all: kas.jar kuesym.jar
+all: kas.jar ksim.jar
 
-kuesym.jar: kuesym.kt
-	kotlinc kuesym.kt -include-runtime -d kuesym.jar 
+ksim.jar: ksim.kt
+	kotlinc ksim.kt -include-runtime -d ksim.jar 
 
 kas.jar: kas.kt
 	kotlinc kas.kt -include-runtime -d kas.jar 
