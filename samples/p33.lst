@@ -1,0 +1,22 @@
+			
+			
+			
+			
+ C0 :			N:	EQU	0C0H	
+			
+ 80 :			DATA1:	EQU	80H	
+			
+ 90 :			DATA2:	EQU	90H	
+			
+ A0 :			ANS:	EQU	0A0H	
+			
+ 00 :	6C C0			LD	IX,	[N]
+ 02 :	20			RCF	
+ 03 :	66 7F		LOOP:	LD	ACC,	[IX+DATA1-1]
+ 05 :	96 8F			ADC	ACC,	[IX+DATA2-1]
+ 07 :	76 9F			ST	ACC,	[IX+ANS-1]
+ 09 :	AA 01			SUB	IX,	1
+ 0B :	33 03			BP	LOOP
+ 0D :	0F			HLT	
+			
+				END		

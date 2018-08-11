@@ -385,6 +385,7 @@ fun assemble(lineList: MutableList<String>, otype: String) {
 fun main(args: Array<String>) {
   if (args.size == 0) {
     println("Usage: kas filename")
+    println("Usage: kas filename hex")
     return
   }
   try {

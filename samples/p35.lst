@@ -1,0 +1,23 @@
+			
+			
+			
+			
+ 80 :			A:	EQU	80H	
+			
+ 81 :			B:	EQU	81H	
+			
+ 82 :			GCD:	EQU	82H	
+			
+ 00 :	64 80			LD	ACC,	[A]
+ 02 :	6C 81			LD	IX,	[B]
+ 04 :	A1		LOOP:	SUB	ACC,	IX
+ 05 :	32 04			BZP	LOOP
+ 07 :	B1			ADD	ACC,	IX
+ 08 :	C8			EOR	IX,	ACC
+ 09 :	C1			EOR	ACC,	IX
+ 0A :	C8			EOR	IX,	ACC
+ 0B :	31 04			BNZ	LOOP
+ 0D :	74 82			ST	ACC,	[GCD]
+ 0F :	0F			HLT	
+			
+				END		

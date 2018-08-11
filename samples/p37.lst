@@ -1,0 +1,37 @@
+			
+			
+			
+			
+ 00 :			DATA:	EQU	00H	
+			
+ 80 :			N:	EQU	80H	
+			
+ 90 :			WORK1:	EQU	90H	
+			
+ 91 :			WORK2:	EQU	91H	
+			
+ 00 :	6C 80			LD	IX,	[N]
+ 02 :	AA 01			SUB	IX,	1
+ 04 :	7C 90			ST	IX,	[WORK1]
+ 06 :	C9		LP1:	EOR	IX,	IX
+ 07 :	20			RCF	
+ 08 :	67 00		LP2:	LD	ACC,	(IX+DATA)
+ 0A :	F7 01			CMP	ACC,	(IX+DATA+1)
+ 0C :	3F 19			BLE	SKIP
+ 0E :	74 91			ST	ACC,	[WORK2]
+ 10 :	67 01			LD	ACC,	(IX+DATA+1)
+ 12 :	77 00			ST	ACC,	(IX+DATA)
+ 14 :	64 91			LD	ACC,	[WORK2]
+ 16 :	77 01			ST	ACC,	(IX+DATA+1)
+ 18 :	2F			SCF	
+ 19 :	BA 01		SKIP:	ADD	IX,	1
+ 1B :	FC 90			CMP	IX,	[WORK1]
+ 1D :	31 08			BNZ	LP2
+ 1F :	35 29			BNC	FIN
+ 21 :	6C 90			LD	IX,	[WORK1]
+ 23 :	AA 01			SUB	IX,	1
+ 25 :	7C 90			ST	IX,	[WORK1]
+ 27 :	31 06			BNZ	LP1
+ 29 :	0F		FIN:	HLT	
+			
+				END		

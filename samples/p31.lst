@@ -1,0 +1,16 @@
+			
+			
+			
+ 80 :			N:	EQU	80H	
+			
+ 81 :			SUM:	EQU	81H	
+			
+ 00 :	6C 80			LD	IX,	[N]
+ 02 :	62 00			LD	ACC,	0
+ 04 :	B1		LOOP:	ADD	ACC,	IX
+ 05 :	AA 01			SUB	IX,	1
+ 07 :	33 04			BP	LOOP
+ 09 :	74 81			ST	ACC,	[SUM]
+ 0B :	0F			HLT	
+			
+				END		

@@ -1,0 +1,41 @@
+			
+			
+			
+			
+ 80 :			DVD:	EQU	80H	
+			
+ 81 :			DVS:	EQU	81H	
+			
+ 82 :			QOT:	EQU	82H	
+			
+ 83 :			RMD:	EQU	83H	
+			
+ F0 :			WORK:	EQU	0F0H	
+			
+ 00 :	C0			EOR	ACC,	ACC
+ 01 :	74 82			ST	ACC,	[QOT]
+ 03 :	74 83			ST	ACC,	[RMD]
+ 05 :	64 80			LD	ACC,	[DVD]
+ 07 :	74 F0			ST	ACC,	[WORK]
+ 09 :	6A 08			LD	IX,	8
+ 0B :	64 F0		LOOP:	LD	ACC,	[WORK]
+ 0D :	41			SLA	ACC
+ 0E :	74 F0			ST	ACC,	[WORK]
+ 10 :	64 83			LD	ACC,	[RMD]
+ 12 :	45			RLA	ACC
+ 13 :	20			RCF	
+ 14 :	84 81			SBC	ACC,	[DVS]
+ 16 :	3D 1B			BC	SP1
+ 18 :	2F			SCF	
+ 19 :	30 1E			BA	SP2
+ 1B :	B4 81		SP1:	ADD	ACC,	[DVS]
+ 1D :	20			RCF	
+ 1E :	74 83		SP2:	ST	ACC,	[RMD]
+ 20 :	64 82			LD	ACC,	[QOT]
+ 22 :	45			RLA	ACC
+ 23 :	74 82			ST	ACC,	[QOT]
+ 25 :	AA 01			SUB	IX,	1
+ 27 :	33 0B			BP	LOOP
+ 29 :	0F			HLT	
+			
+				END		

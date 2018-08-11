@@ -107,41 +107,81 @@ class Byte(n: Int) {
     return this
   }
   fun add(b: Byte): Byte {
-    val tn = this.byte2num()
-    val bn = b.byte2num()
-    val n = tn + bn
-    if (tn < 128 && bn < 128 && n >= 128) {
-      vf = 1
-    } else if (tn >=128 && bn >= 128 && n < 384) {
-      vf = 1
-    } else {
+    var carry = 0
+    var carry_prev = 0
+    for (i: Int in 0..7) {
+      carry_prev = carry
+      if (bit[i] == 0 && b.bit[i] == 0) { // 0, 0
+	if (carry > 0) {
+	  bit[i] = 1; carry = 0
+	} else {
+	  bit[i] = 0; carry = 0
+	}
+      } else if (bit[i] == 0 && b.bit[i] == 1) { // 0, 1
+	if (carry > 0) {
+	  bit[i] = 0; carry = 1
+	} else {
+	  bit[i] = 1; carry = 0
+	}
+      } else if (bit[i] == 1 && b.bit[i] == 0) { // 1, 0
+	if (carry > 0) {
+	  bit[i] = 0; carry = 1
+	} else {
+	  bit[i] = 1; carry = 0
+	}
+      } else { // 1, 1
+	if (carry > 0) {
+	  bit[i] = 1; carry = 1
+	} else {
+	  bit[i] = 0; carry = 1
+	}
+      }
+    }
+    if (carry == carry_prev) {
       vf = 0
-    }
-    if (n >= 256) {
-      cf = 1
     } else {
-      cf = 0
+      vf = 1
     }
-    this.num2byte(n)
+    cf = carry
     return this
   }
   fun sub(b: Byte): Byte {
-    val tn = this.byte2num()
-    val bn = b.byte2num()
-    val n = tn - bn
-    if (tn < 128 && bn >= 128 && n >= 384) {
-      vf = 1
-    } else if (tn >= 128 && bn < 128 && n < 384) {
-      vf = 1
-    } else {
+    var borrow = 0
+    var borrow_prev = 0
+    for (i: Int in 0..7) {
+      borrow_prev = borrow
+      if (bit[i] == 0 && b.bit[i] == 0) { // 0, 0
+	if (borrow > 0) {
+	  bit[i] = 1; borrow = 1
+	} else {
+	  bit[i] = 0; borrow = 0
+	}
+      } else if (bit[i] == 0 && b.bit[i] == 1) { // 0, 1
+	if (borrow > 0) {
+	  bit[i] = 0; borrow = 1
+	} else {
+	  bit[i] = 1; borrow = 1
+	}
+      } else if (bit[i] == 1 && b.bit[i] == 0) { // 1, 0
+	if (borrow > 0) {
+	  bit[i] = 0; borrow = 0
+	} else {
+	  bit[i] = 1; borrow = 0
+	}
+      } else { // 1, 1
+	if (borrow > 0) {
+	  bit[i] = 1; borrow = 1
+	} else {
+	  bit[i] = 0; borrow = 0
+	}
+      }
+    }
+    if (borrow == borrow_prev) {
       vf = 0
-    }
-    if (tn < bn) {
-      cf = 1
     } else {
-      cf = 0
+      vf = 1
     }
-    this.num2byte(n)
+    cf = borrow
     return this
   }
   fun cmp(b: Byte): Int {
@@ -251,21 +291,22 @@ class KueChip2Board() {
   // the same as the function in kas.kt
   fun parseNumber0(s: String): Int {
 //println("(parseNumber0) s=" + s)
+    if (s == "") throw SymError("(in parseNumber0) " + s + ": not a number")
     val ca = s.toCharArray()
     if (!s[0].isDigit()) {
-      throw SymError("(in parseNumber0)" + s + ": not a number")
+      throw SymError("(in parseNumber0) " + s + ": not a number")
     } else if (s[ca.size-1] == 'h') {
       var s2 = s.trim({ch -> ch == 'h'})
       try {
 	return (s2.toLong(radix = 16).toInt()) // 0AH
       } catch (e: NumberFormatException) {
-	throw SymError("(in parseNumber0)" + s + ": not a number")
+	throw SymError("(in parseNumber0) " + s + ": not a number")
       }
     } else {
       try {
 	return s.toInt() // 3
       } catch (e: NumberFormatException) {
-	throw SymError("(in parseNumber0)" + s + ": not a number")
+	throw SymError("(in parseNumber0) " + s + ": not a number")
       }
     }
 
@@ -276,43 +317,8 @@ class KueChip2Board() {
   }
   fun printAll() {
     printRegs()
-
-    val v_pc = pc.byte2num()
-    val s_pc = if (v_pc < 128) { 
-      "(" + v_pc.toString() + ")"
-    } else {
-      "(" + (v_pc-256).toString() + "/" + v_pc.toString() + ")"
-    }
-    print("PC" + pc.toStr() + "=" + s_pc + ", ")
-
-    val v_mar = mar.byte2num()
-    val s_mar = if (v_mar < 128) { 
-      "(" + v_mar.toString() + ")"
-    } else {
-      "(" + (v_mar-256).toString() + "/" + v_mar.toString() + ")"
-    }
-    print("MAR" + mar.toStr() + "=" + s_mar + ", ")    
-
-    val v_ir = ir.byte2num()
-    val s_ir = if (v_ir < 128) { 
-      "(" + v_ir.toString() + ")"
-    } else {
-      "(" + (v_ir-256).toString() + "/" + v_ir.toString() + ")"
-    }
-    print("IR" + ir.toStr() + "=" + s_ir + ", ")    
-
-    val v_dr = dr.byte2num()
-    val s_dr = if (v_dr < 128) { 
-      "(" + v_dr.toString() + ")"
-    } else {
-      "(" + (v_dr-256).toString() + "/" + v_dr.toString() + ")"
-    }
-    print("DR" + dr.toStr() + "=" + s_dr)
-
-    print(", OP=" + opflag)
-
-    println()
     printMem()
+    printDMem()
   }
   fun printRegs() {
     val v_acc = acc.byte2num()
@@ -321,7 +327,11 @@ class KueChip2Board() {
     } else {
       "(" + (v_acc-256).toString() + "/" + v_acc.toString() + ")"
     }
-    print("ACC" + acc.toStr() + "=" + s_acc + ", ")
+    if (pmode == "hex") {
+      print("ACC=" + "%02X".format(acc.byte2num()) + s_acc + ", ")
+    } else {
+      print("ACC" + acc.toStr() + "=" + s_acc + ", ")
+    }
 
     val v_ix = ix.byte2num()
     val s_ix = if (v_ix < 128) { 
@@ -329,18 +339,73 @@ class KueChip2Board() {
     } else {
       "(" + (v_ix-256).toString() + "/" + v_ix.toString() + ")"
     }
-    print("IX" + ix.toStr() + "=" + s_ix + ", ")
+    if (pmode == "hex") {
+      print("IX=" + "%02X".format(ix.byte2num()) + s_ix + ", ")
+    } else {
+      print("IX" + ix.toStr() + "=" + s_ix + ", ")
+    }
 
     print("CF=%d, VF=%d, NF=%d, ZF=%d".format(cf,vf,negf,zerof))
     println()
-//    println()
+
+    val v_pc = pc.byte2num()
+    val s_pc = if (v_pc < 128) { 
+      "(" + v_pc.toString() + ")"
+    } else {
+      "(" + (v_pc-256).toString() + "/" + v_pc.toString() + ")"
+    }
+    if (pmode == "hex") {
+      print("PC=" + "%02X".format(pc.byte2num()) + s_pc + ", ")
+    } else {
+      print("PC" + pc.toStr() + "=" + s_pc + ", ")
+    }
+
+    val v_mar = mar.byte2num()
+    val s_mar = if (v_mar < 128) { 
+      "(" + v_mar.toString() + ")"
+    } else {
+      "(" + (v_mar-256).toString() + "/" + v_mar.toString() + ")"
+    }
+    if (pmode == "hex") {
+      print("MAR=" + "%02X".format(mar.byte2num()) + s_mar + ", ")
+    } else {
+      print("MAR" + mar.toStr() + "=" + s_mar + ", ")
+    }
+
+    val v_ir = ir.byte2num()
+    val s_ir = if (v_ir < 128) { 
+      "(" + v_ir.toString() + ")"
+    } else {
+      "(" + (v_ir-256).toString() + "/" + v_ir.toString() + ")"
+    }
+    if (pmode == "hex") {
+      print("IR=" + "%02X".format(ir.byte2num()) + s_ir + ", ")
+    } else {
+      print("IR" + ir.toStr() + "=" + s_ir + ", ")
+    }
+
+    val v_dr = dr.byte2num()
+    val s_dr = if (v_dr < 128) { 
+      "(" + v_dr.toString() + ")"
+    } else {
+      "(" + (v_dr-256).toString() + "/" + v_dr.toString() + ")"
+    }
+    if (pmode == "hex") {
+      print("DR=" + "%02X".format(dr.byte2num()) + s_dr)
+    } else {
+      print("DR" + dr.toStr() + "=" + s_dr)
+    }
+
+//    print(", OP=" + opflag)
+    println()
+
   }
   fun printMem() {
     var fmt_entity: String
     var fmt_addr: String
     if (pmode == "hex") {
       fmt_entity = " %02X"
-      fmt_addr = "%02X"
+      fmt_addr = " %02X"
     } else {
       fmt_entity = "%4d"
       fmt_addr = "%3d"
@@ -348,25 +413,22 @@ class KueChip2Board() {
     for (addr: Int in 0..255) {
       if (addr.rem(16) == 0) {
 	if (addr != 0) println()
-//	print("%3d".format(addr) + " : ")
 	print(fmt_addr.format(addr) + " : ")
       }
-//      print("%4d".format(mem[addr].byte2num()))
       print(fmt_entity.format(mem[addr].byte2num()))
     }
     println()
-//    println()
   }
   fun printDMem() {
     var fmt_entity: String
     var fmt_addr: String
-//    if (pmode == "hex") {
+    if (pmode == "hex") {
       fmt_entity = " %02X"
       fmt_addr = "1%02X"
-//    } else {
-//      fmt_entity = "%4d"
-//      fmt_addr = "%3d"
-//    }
+    } else {
+      fmt_entity = "%4d"
+      fmt_addr = "%3d"
+    }
     for (addr: Int in 0..255) {
       if (addr.rem(16) == 0) {
 	if (addr != 0) println()
@@ -424,7 +486,6 @@ class KueChip2Board() {
       instT.OP_RDis2 -> r1.copy(dmem[(ix.byte2num() + n2).rem(256)]) // LD ACC, (IX+3)
       else -> throw SymError("(in  ld)" + ty + ": illegal addressing")
     }
-//    pc.inc()
   }
 
   // ST
@@ -441,7 +502,6 @@ class KueChip2Board() {
       instT.OP_RDis2 -> dmem[(ix.byte2num() + n2).rem(256)].copy(r1) // ST ACC, (IX+3)
       else -> throw SymError("(in  ld)" + ty + ": illegal addressing")
     }
-//    pc.inc()
   }
 
 
@@ -462,7 +522,6 @@ class KueChip2Board() {
 //    cf = r1.getCF()
     vf = r1.getVF()
     setFlag(r1)
-//    pc.inc()
   }
   
   // SUB
@@ -483,7 +542,6 @@ class KueChip2Board() {
 //    cf = r1.getCF()
     vf = r1.getVF()
     setFlag(r1)
-//    pc.inc()
   }
 
   // ADC
@@ -637,63 +695,63 @@ class KueChip2Board() {
     pc.num2byte(parseNumber0(opr1))
   }
   fun bvf(opr1: String) {  
-    if (vf == 1) pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+    if (vf == 1) pc.num2byte(parseNumber0(opr1))
   }
   fun bnz(opr1: String) {  
-    if (zerof == 0) pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+    if (zerof == 0) pc.num2byte(parseNumber0(opr1))
   }
   fun bz(opr1: String) {  
-    if (zerof == 1) pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+    if (zerof == 1) pc.num2byte(parseNumber0(opr1))
   }
   fun bzp(opr1: String) {  
-    if (negf == 0) pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+    if (negf == 0) pc.num2byte(parseNumber0(opr1))
   }
   fun bn(opr1: String) {  
-    if (negf == 1) pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+    if (negf == 1) pc.num2byte(parseNumber0(opr1))
   }
   fun bp(opr1: String) {  
-    if ((negf == 0) && (zerof == 0)) pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+    if ((negf == 0) && (zerof == 0)) pc.num2byte(parseNumber0(opr1))
   }
   fun bzn(opr1: String) {  
-    if ((negf == 1) || (zerof == 1)) pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+    if ((negf == 1) || (zerof == 1)) pc.num2byte(parseNumber0(opr1))
   }
   fun bni(opr1: String) {  
     println("bni: not implemented yet")
-    if (false) pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+    if (false) pc.num2byte(parseNumber0(opr1))
   }
   fun bno(opr1: String) {  
     println("bno: not implemented yet")
-    if (false) pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+    if (false) pc.num2byte(parseNumber0(opr1))
   }
   fun bnc(opr1: String) {  
-    if (cf == 0) pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+    if (cf == 0) pc.num2byte(parseNumber0(opr1))
   }
   fun bc(opr1: String) {  
-    if (cf == 1) pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+    if (cf == 1) pc.num2byte(parseNumber0(opr1))
   }
   fun bge(opr1: String) {  
     if ((vf == 0) && (negf == 0) || (vf == 1) && (negf == 1)) 
-        pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+        pc.num2byte(parseNumber0(opr1))
   }
   fun blt(opr1: String) {  
     if ((vf == 1) && (negf == 0) || (vf == 0) && (negf == 1)) 
-        pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+        pc.num2byte(parseNumber0(opr1))
   }
   fun bgt(opr1: String) {  
     if (((vf == 0) && (negf == 0) || (vf == 1) && (negf == 1)) && zerof == 0)
-        pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+        pc.num2byte(parseNumber0(opr1))
   }
   fun ble(opr1: String) {  
     if (((vf == 1) && (negf == 0) || (vf == 0) && (negf == 1)) || zerof == 1)
-        pc.num2byte(parseNumber0(opr1)) //else pc.inc()
+        pc.num2byte(parseNumber0(opr1))
   }
 
-  fun nop() {}//pc.inc()}
-  fun hlt() {opflag = 0}//pc.inc()}
-  fun outop() {}//pc.inc()}
-  fun inop() {}//pc.inc()}
-  fun rcf() {cf = 0}//; pc.inc()}
-  fun scf() {cf = 1}//; pc.inc()}
+  fun nop() {}
+  fun hlt() {opflag = 0}
+  fun outop() {}
+  fun inop() {}
+  fun rcf() {cf = 0}
+  fun scf() {cf = 1}
 
   fun reset() {
     pc.num2byte(0)
@@ -716,8 +774,25 @@ class KueChip2Board() {
 	lines -> lines.forEach {hex.add(it)} 
       }
       var addr = 0
+      val pat1 = " *([0-9a-fA-F][0-9a-fA-F]*) *: *([0-9a-fA-F][0-9a-fA-F]).*".toRegex()
+      val pat2 = " *([0-9a-fA-F][0-9a-fA-F]).*".toRegex()
       hex.forEach {
-	mem[addr].num2byte((hex[addr]).toLong(radix = 16).toInt())
+	if (pat1.matches(it)) {
+	  val (ca, va) = pat1.find(it)!!.destructured
+	  addr = ca.toLong(radix = 16).toInt()
+	  if (addr <= 0xff) {
+	    mem[addr].num2byte(va.toLong(radix = 16).toInt())
+	  } else {
+	    dmem[addr-0x100].num2byte(va.toLong(radix = 16).toInt())
+	  }
+	} else if (pat2.matches(it)) {
+	  val (va) = pat2.find(it)!!.destructured
+	  mem[addr].num2byte(va.toLong(radix = 16).toInt())
+	} else if (" *".toRegex().matches(it)) {
+	  // do nothing
+	} else {
+	  throw SymError("(loadfile) " + fname + ":" + it + ": illegal format")
+	}
 	addr++
       }
       println("OK.")
@@ -755,7 +830,7 @@ class KueChip2Board() {
       opr1 = opr2
       opr2 = ""
     }
-    println("inst: " + op + " " + opr1 + " " + opr2)
+//    println("inst: " + op + " " + opr1 + " " + opr2)
     // Organize the instruction and execute it.
     dispatch(this, op, ty, opr1, opr2)
     return opflag
@@ -1018,7 +1093,7 @@ tailrec fun repl(cpu: KueChip2Board) {
   val regex_rdis2 = inst_rdis2.toRegex()
   val regex_b = inst_b.toRegex()
   val regex_command = (" *(reg|mem|dmem|help|pmode|bye|all|rst|si|ss|set) *").toRegex()
-  val regex_lf = " *(lf) *([\\./a-z][\\./a-z0-9]*) *".toRegex()
+  val regex_lf = " *(lf) *([\\.\\-_/a-zA-Z0-9][\\.\\-_/a-zA-Z0-9]*) *".toRegex()
   val regex_set = (spc + "(set)" + spc + num + sep
                   + "\\[" + spc + num + spc + "\\]" + spc).toRegex()
   val regex_setd = (spc + "(set)" + spc + num + sep
@@ -1037,16 +1112,17 @@ tailrec fun repl(cpu: KueChip2Board) {
       val (p1) = regex_command.find(line)!!.destructured
       when (p1) {
 	"help" -> {
-	  println("\tmem \t: print memory")
-	  println("\treg \t: print register")
-	  println("\tall \t: print memory and register")
-	  println("\tlf file\t: load file in HEX format")
-	  println("\trst \t: reset system")
-	  println("\tset v [a]\t: set mem[a] to v")
-	  println("\tsi \t: execute single instruction pointed by PC")
-	  println("\tss \t: start executing instructions from the place pointed by PC")
-	  println("\tpmode \t: toggle print mode (hex/decimal)")
-	  println("\tbye \t: exit")
+	  println("    mem \t: print memory")
+	  println("    reg \t: print register")
+	  println("    all \t: print memory and register")
+	  println("    lf file\t: load file in HEX format")
+	  println("    rst \t: reset system (initialize registers)")
+	  println("    set v [a]\t: set mem[a] to v")
+	  println("    set v (a)\t: set dmem[a] to v")
+	  println("    si   \t: execute single instruction pointed by PC")
+	  println("    ss   \t: start executing instructions from the place pointed by PC")
+	  println("    pmode \t: toggle print mode (hex/decimal)")
+	  println("    bye \t: exit")
 	}
 	"bye" -> return
 	"reg" -> {cpu.printRegs(); println()}
@@ -1111,18 +1187,11 @@ tailrec fun repl(cpu: KueChip2Board) {
     } else if (regex_b.matches(line)) { // BR
       val (p1, p2) = regex_b.find(line)!!.destructured
       dispatch(cpu, p1, instT.BR, p2, "")
-/*
-    } else if (regex_set_op.matches(line)) {
-      val (addr, p1) = regex_set.find(line)!!.destructured
-*/      
     } else if (spc.toRegex().matches(line)) {
       // do nothing
     } else {
       println("parse error")
     }
-
-
-
 
     } catch (e: SymError) {
       println(e)

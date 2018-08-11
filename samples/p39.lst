@@ -1,0 +1,56 @@
+			
+			
+			
+			
+ 00 :			DATA:	EQU	00H	
+			
+ 80 :			N:	EQU	80H	
+			
+ C0 :			C1:	EQU	0C0H	
+ C1 :			C2:	EQU	0C1H	
+			
+ F0 :			WORK:	EQU	0F0H	
+			
+ 00 :	62 FF			LD	ACC,	0FFH
+ 02 :	74 C0			ST	ACC,	[C1]
+ 04 :	74 C1			ST	ACC,	[C2]
+ 06 :	C9			EOR	IX,	IX
+ 07 :	7C F0			ST	IX,	[WORK]
+ 09 :	64 C0		LP1:	LD	ACC,	[C1]
+ 0B :	C7 00			EOR	ACC,	(IX+DATA)
+ 0D :	74 C0			ST	ACC,	[C1]
+ 0F :	6A 08			LD	IX,	8
+ 11 :	64 C1		LP2:	LD	ACC,	[C2]
+ 13 :	43			SLL	ACC
+ 14 :	74 C1			ST	ACC,	[C2]
+ 16 :	64 C0			LD	ACC,	[C1]
+ 18 :	45			RLA	ACC
+ 19 :	74 C0			ST	ACC,	[C1]
+ 1B :	35 27			BNC	SKIP
+ 1D :	C4 42			EOR	ACC,	[P1]
+ 1F :	74 C0			ST	ACC,	[C1]
+ 21 :	64 C1			LD	ACC,	[C2]
+ 23 :	C4 43			EOR	ACC,	[P2]
+ 25 :	74 C1			ST	ACC,	[C2]
+ 27 :	AA 01		SKIP:	SUB	IX,	1
+ 29 :	33 11			BP	LP2
+ 2B :	6C F0			LD	IX,	[WORK]
+ 2D :	BA 01			ADD	IX,	1
+ 2F :	FC 80			CMP	IX,	[N]
+ 31 :	7C F0			ST	IX,	[WORK]
+ 33 :	31 09			BNZ	LP1
+ 35 :	64 C1			LD	ACC,	[C2]
+ 37 :	C2 FF			EOR	ACC,	0FFH
+ 39 :	74 C1			ST	ACC,	[C2]
+ 3B :	64 C0			LD	ACC,	[C1]
+ 3D :	C2 FF			EOR	ACC,	0FFH
+ 3F :	74 C0			ST	ACC,	[C1]
+ 41 :	0F			HLT	
+			
+			
+			
+			
+ 42 :	10		P1:	PROG	10H
+ 43 :	21		P2:	PROG	21H
+			
+				END		

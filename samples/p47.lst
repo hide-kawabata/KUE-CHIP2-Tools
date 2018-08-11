@@ -1,0 +1,55 @@
+			
+			
+			
+			
+			
+			
+			
+			
+			
+ 00 :			PROG:	EQU	0	
+			
+ 00 :			CA:	EQU	PROG	
+			
+ 00 :	C0			EOR	ACC,	ACC
+ 01 :	6A 47			LD	IX,	TEST
+ 03 :	76 00		LP0:	ST	ACC,	[IX]
+ 05 :	BA 01			ADD	IX,	1
+ 07 :	FA 00			CMP	IX,	PROG
+ 09 :	31 03			BNZ	LP0
+ 0B :	C9			EOR	IX,	IX
+ 0C :	77 00		LP1:	ST	ACC,	(IX)
+ 0E :	BA 01			ADD	IX,	1
+ 10 :	31 0C			BNZ	LP1
+ 12 :	6A 47		LP2:	LD	IX,	TEST
+ 14 :	F6 00		LP3:	CMP	ACC,	[IX]
+ 16 :	31 46			BNZ	ERR
+ 18 :	C2 80			EOR	ACC,	80H
+ 1A :	47			RLL	ACC
+ 1B :	76 00			ST	ACC,	[IX]
+ 1D :	39 23			BZ	NX3
+ 1F :	F2 FF			CMP	ACC,	0FFH
+ 21 :	31 14			BNZ	LP3
+ 23 :	C2 FF		NX3:	EOR	ACC,	0FFH
+ 25 :	BA 01			ADD	IX,	1
+ 27 :	FA 00			CMP	IX,	PROG
+ 29 :	31 14			BNZ	LP3
+ 2B :	C9			EOR	IX,	IX
+ 2C :	F7 00		LP4:	CMP	ACC,	(IX)
+ 2E :	31 46			BNZ	ERR
+ 30 :	C2 80			EOR	ACC,	80H
+ 32 :	47			RLL	ACC
+ 33 :	77 00			ST	ACC,	(IX)
+ 35 :	39 3B			BZ	NX4
+ 37 :	F2 FF			CMP	ACC,	0FFH
+ 39 :	31 2C			BNZ	LP4
+ 3B :	C2 FF		NX4:	EOR	ACC,	0FFH
+ 3D :	BA 01			ADD	IX,	1
+ 3F :	31 2C			BNZ	LP4
+ 41 :	C2 FF			EOR	ACC,	0FFH
+ 43 :	10			OUT	
+ 44 :	30 12			BA	LP2
+ 46 :	0F		ERR:	HLT	
+			
+ 47 :			TEST:	EQU	CA	
+				END		

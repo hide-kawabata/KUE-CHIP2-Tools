@@ -1,0 +1,54 @@
+			
+			
+			
+			
+ 80 :			DATA1:	EQU	80H	
+			
+ 84 :			DATA2:	EQU	84H	
+			
+ 88 :			RESULT:	EQU	88H	
+			
+ E0 :			WORK:	EQU	0E0H	
+			
+ F0 :			COUNT:	EQU	0F0H	
+			
+ 00 :	62 20			LD	ACC,	32
+ 02 :	74 F0			ST	ACC,	[COUNT]
+ 04 :	6A 04			LD	IX,	4
+ 06 :	C0		LP1:	EOR	ACC,	ACC
+ 07 :	76 DF			ST	ACC,	[IX+WORK-1]
+ 09 :	76 87			ST	ACC,	[IX+RESULT-1]
+ 0B :	76 8B			ST	ACC,	[IX+RESULT+4-1]
+ 0D :	66 83			LD	ACC,	[IX+DATA2-1]
+ 0F :	76 E3			ST	ACC,	[IX+WORK+4-1]
+ 11 :	AA 01			SUB	IX,	1
+ 13 :	31 06			BNZ	LP1
+ 15 :	64 83		LP2:	LD	ACC,	[DATA1+3]
+ 17 :	42			SRL	ACC
+ 18 :	6A FC			LD	IX,	-4
+ 1A :	66 84		LP3:	LD	ACC,	[IX+DATA1+4]
+ 1C :	44			RRA	ACC
+ 1D :	76 84			ST	ACC,	[IX+DATA1+4]
+ 1F :	BA 01			ADD	IX,	1
+ 21 :	31 1A			BNZ	LP3
+ 23 :	35 32			BNC	LP5
+ 25 :	6A 08			LD	IX,	8
+ 27 :	20			RCF	
+ 28 :	66 87		LP4:	LD	ACC,	[IX+RESULT-1]
+ 2A :	96 DF			ADC	ACC,	[IX+WORK-1]
+ 2C :	76 87			ST	ACC,	[IX+RESULT-1]
+ 2E :	AA 01			SUB	IX,	1
+ 30 :	31 28			BNZ	LP4
+ 32 :	6A 08		LP5:	LD	IX,	8
+ 34 :	20			RCF	
+ 35 :	66 DF		LP6:	LD	ACC,	[IX+WORK-1]
+ 37 :	45			RLA	ACC
+ 38 :	76 DF			ST	ACC,	[IX+WORK-1]
+ 3A :	AA 01			SUB	IX,	1
+ 3C :	31 35			BNZ	LP6
+ 3E :	64 F0			LD	ACC,	[COUNT]
+ 40 :	A2 01			SUB	ACC,	1
+ 42 :	74 F0			ST	ACC,	[COUNT]
+ 44 :	31 15			BNZ	LP2
+ 46 :	0F			HLT	
+				END		

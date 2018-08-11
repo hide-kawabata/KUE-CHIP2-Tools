@@ -1,0 +1,39 @@
+			
+			
+			
+			
+ 80 :			DATA1:	EQU	80H	
+			
+ 81 :			DATA2:	EQU	81H	
+			
+ 82 :			ANS:	EQU	82H	
+			
+ F0 :			WORK:	EQU	0F0H	
+ 00 :	C0			EOR	ACC,	ACC
+ 01 :	74 82			ST	ACC,	[ANS]
+ 03 :	74 83			ST	ACC,	[ANS+1]
+ 05 :	74 F0			ST	ACC,	[WORK]
+ 07 :	64 81			LD	ACC,	[DATA2]
+ 09 :	74 F1			ST	ACC,	[WORK+1]
+ 0B :	6C 80			LD	IX,	[DATA1]
+ 0D :	4A		LOOP:	SRL	IX
+ 0E :	35 1D			BNC	SKIP
+ 10 :	20			RCF	
+ 11 :	64 83			LD	ACC,	[ANS+1]
+ 13 :	94 F1			ADC	ACC,	[WORK+1]
+ 15 :	74 83			ST	ACC,	[ANS+1]
+ 17 :	64 82			LD	ACC,	[ANS]
+ 19 :	94 F0			ADC	ACC,	[WORK]
+ 1B :	74 82			ST	ACC,	[ANS]
+ 1D :	FA 00		SKIP:	CMP	IX,	0
+ 1F :	39 2D			BZ	FIN
+ 21 :	64 F1			LD	ACC,	[WORK+1]
+ 23 :	41			SLA	ACC
+ 24 :	74 F1			ST	ACC,	[WORK+1]
+ 26 :	64 F0			LD	ACC,	[WORK]
+ 28 :	45			RLA	ACC
+ 29 :	74 F0			ST	ACC,	[WORK]
+ 2B :	30 0D			BA	LOOP
+ 2D :	0F		FIN:	HLT	
+			
+				END		
