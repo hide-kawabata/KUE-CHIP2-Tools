@@ -37,7 +37,7 @@ $
    ```
 
 
-## KUE-CHIP2 Symulator
+## KUE-CHIP2 Simulator
 
    ```
 $ ./kas mul.asm hex > mul.hex
