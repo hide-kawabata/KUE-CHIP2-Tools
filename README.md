@@ -1,7 +1,7 @@
 # KUE-CHIP2 Tools
 
 KUE-CHIP2 is a tiny 8-bit processor [1][2].
-Here we present a set of tools for helping beginners, e.g., high school students, get a feel of the KUE-CHIP2 CPU. We are planning to prepare an instruction set-level symulator (interpreter) and an assembler. All tools are written in Kotlin, so that you can execute those tools on any environment with the Java Rutime Environment.
+Here we present a set of tools for helping beginners, e.g., high school students, get a feel of the KUE-CHIP2 CPU. We are planning to prepare an instruction set-level simulator (interpreter) and an assembler. All tools are written in Kotlin, so that you can execute those tools on any environment with the Java Rutime Environment.
 
 [1] H. Kanbara and H. Yasuura, KUE-CHIP2: A microprocessor for education of LSI design and computer hardware, Proc. Synthesis and System Integration of Mixed Technologies (SASIMI'95) pp.233-240, 1995.
 [2] H. Kanbara, KUE-CHIP: A Microprocessor for education of Computer Architecture and LSI design, Proc. IEEE ASIC Seminar and Exhibit, 1990.
